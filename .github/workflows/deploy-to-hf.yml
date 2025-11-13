@@ -1,0 +1,40 @@
+
+name: Deploy to Hugging Face Space
+on: [push]
+
+jobs:
+  your-job:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install huggingface_hub httpx transformers
+        
+    - name: Run script
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        python -c "
+        import os
+        from huggingface_hub import HfApi
+        
+        # Verify token is set
+        print('Token present:', bool(os.environ.get('HF_TOKEN')))
+        
+        try:
+            api = HfApi()
+            info = api.whoami()
+            print('Success:', info)
+        except Exception as e:
+            print('Error:', e)
+            exit(1)
+        "
